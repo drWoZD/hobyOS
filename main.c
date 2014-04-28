@@ -1,6 +1,9 @@
-#include "multiboot.h"
+/**
+ * This file contains the function of main, and some auxiliary functions
+ */
 
-/*Тут я думаю можна не коментувати*/
+#include "multiboot.h"
+#include "asm.h"
 
 char current_row = 0, current_col = 0;
 
@@ -13,24 +16,6 @@ void cls()
     current_row = 0;
 }
 
-static inline void outb( unsigned short port, unsigned char val )
-{
-    asm volatile( "outb %0, %1"
-                  : : "a"(val), "Nd"(port) );
-}
-
-int rdmsr(int num)
-{
-    int out;
-    asm(
-      "movl %1, %%ecx\n\t"
-      "rdmsr\n\t"
-      "movl %%eax, %0"
-      :"=r" (out):"r" (num):
-    );
-    return out;
-}
-
 void set_cur_pos(unsigned char col, unsigned char row)
 {
     unsigned short pos = (row * 80) + col;
@@ -38,6 +23,7 @@ void set_cur_pos(unsigned char col, unsigned char row)
     outb(0x3D5, (unsigned char)(pos&0xFF));
     outb(0x3D4, 0x0E);
     outb(0x3D5, (unsigned char )((pos>>8)&0xFF));
+    cpuid_m(0,0);
 }
 
 int putchar(char ch)
@@ -171,14 +157,12 @@ int puts(char* str)
 int cmain(multiboot_info_t* mbi)
 {
     cls();
-    int i;
-    //puts("Hello, World!!!");
-    multiboot_module_t* mod =(multiboot_module_t* ) mbi->mods_addr;
-    for (i = 0; i<mbi->mods_count;i++)
-    {
-       
-        printf((char*)mod[i].cmdline);
-    }
-    puts("End");
+    uint32_t r[4];
+    cpuid_m(1, r);
+    puts((r[3] & (1 << 9))?"APIC support":"APIC not support");
+    
+    uint64_t ret = rdmsr(0x1B);
+    printf("%x", ret & 0xFFFFFFFFFFFFF000);
+    
     return 0;
 }
