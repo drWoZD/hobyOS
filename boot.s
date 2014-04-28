@@ -2,14 +2,19 @@
 .text
     .global loader                 
 
-    .set FLAGS,    0x0             # Флаги для ядра
+    .set FLAGS,    0x04            # Флаги для ядра
     .set MAGIC,    0x1BADB002        # 'Магічне' число для multiboot (в multiboot інше)
     .set CHECKSUM, -(MAGIC + FLAGS)  # Контрольна сума
 
     .align 4    # Обовязково треба вирівняти до int
-    .long MAGIC 
-    .long FLAGS
-    .long CHECKSUM
+    .long  MAGIC 
+    .long  FLAGS
+    .long  CHECKSUM
+    .space 20, 0
+    .long  0x01
+    .long  0x50
+    .long  0x19
+    .long  0x0
 
     # Власне код який почне виконувати завантажувач
     
