@@ -22,3 +22,4 @@ inline uint32_t inl(uint16_t port);
 inline void cpuid(int code, uint32_t* a, uint32_t* b, uint32_t* c, uint32_t* d);
 inline void cpuid_m(int code, uint32_t* mass);
 inline uint64_t rdmsr(uint32_t msr_id);
+inline void wrmsr(uint32_t msr_id, uint64_t msr_value);
